@@ -7,12 +7,7 @@ const app = express();
 
 const PORT = process.env.PORT || 3001; 
 
-
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
-
-
+app.use(express.json());
 app.use('/api', apiRouter);
 app.use('/api/notes', notesRouter);
 
@@ -21,7 +16,8 @@ app.use('/api/notes', notesRouter);
 
 // API Route for GET
 app.get('/api/notes', (req, res) => {
-    res.json('');
+    const notes = JSON.parse(fs.readFileSync('./db/db.json', 'utf8'));
+    res.json('notes');
 });
 
 
@@ -30,7 +26,18 @@ app.get('/api/notes', (req, res) => {
 
 // API Route: POST
 app.post('/api/notes', (req, res) => {
-    res.json('');
+    const newNote = req.body; 
+    newNote.id = generateUniqueId();
+    notes.push(newNote);
+
+    fs.writeFile(dbPath, JSON.stringify(notes), 'utf8', (err) => {
+        if (err) {
+            console.error('Error writing db.json:', err);
+            res.status(500).json({ error: 'Failed to save note' });
+        } else {
+            res.json(newNote); // Respond with the new note
+        }
+    });
 });
 
 
@@ -39,9 +46,11 @@ app.post('/api/notes', (req, res) => {
 // DELETE /api/notes/:id should receive a query parameter containing the id of a note to delete. In order to delete a note, you'll need to read all notes from the db.json file, remove the note with the given id property, and then rewrite the notes to the db.json file.
 
 // API Route: DELETE
-app.delete('/api/notes', (req, res) => {
+app.delete('/api/notes:id', (req, res) => {
     res.json('');
 });
 
 
-module.exports = notes;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
