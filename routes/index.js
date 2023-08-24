@@ -1,6 +1,4 @@
 const express = require('express');
-const app = require('./notes'); // Import the notes route
+const notesRouter = require('./notes'); // Import the notes router
 
-app.use('/notes', app); // Mount the notes routes under '/notes'
-
-module.exports = app;
+module.exports = notesRouter;
