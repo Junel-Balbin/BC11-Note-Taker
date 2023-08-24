@@ -32,6 +32,24 @@ app.post('/api/notes', (req, res) => {
 
 // API Route: DELETE
 app.delete('/api/notes/:id', (req, res) => {
+    const noteIdToDelete = req.params.id;
+    const noteIndex = notes.findIndex(note => note.id === noteIdToDelete);
+
+    if (noteIndex !== -1) {
+        notes.splice(noteIndex, 1);
+
+        fs.writeFile(dbPath, JSON.stringify(notes), 'utf8', (err) => {
+            if (err) {
+                console.error('Error writing db.json:', err);
+                res.status(500).json({ error: 'Failed to delete note' });
+            } else {
+                res.json({ message: 'Note deleted' });
+            }
+        });
+    } else {
+        res.status(404).json({ error: 'Not found' });
+    }
+
 });
 
 
